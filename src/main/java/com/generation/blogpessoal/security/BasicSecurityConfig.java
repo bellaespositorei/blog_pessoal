@@ -24,7 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class BasicSecurityConfig {
 
     @Autowired
-    private JwtAuthFilter authFilter;
+    private JwtAuthFilter authFilter; //Filtro de autentificação
 
     @Bean
     UserDetailsService userDetailsService() {
@@ -37,7 +37,7 @@ public class BasicSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
+    @Bean // Define quais parâmetros (infos) serão utilizados para fazer a autentificação(login)
     AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService());
@@ -45,13 +45,15 @@ public class BasicSecurityConfig {
         return authenticationProvider;
     }
 
-    @Bean
+    @Bean // Implementa e executa o processo de autentificação(login)
     AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
             throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    @Bean
+    //Método onde todas as requisições serão tratadas e filtradas de acordo com as Configs
+    // Permite validar o TOKEN a cada requisição que o usuário faz
+    @Bean 
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
     	http
@@ -62,11 +64,11 @@ public class BasicSecurityConfig {
 
     	http
 	        .authorizeHttpRequests((auth) -> auth
-	                .requestMatchers("/usuarios/logar").permitAll()
-	                .requestMatchers("/usuarios/cadastrar").permitAll()
-	                .requestMatchers("/error/**").permitAll()
-	                .requestMatchers(HttpMethod.OPTIONS).permitAll()
-	                .anyRequest().authenticated())
+	               .requestMatchers("/usuarios/logar").permitAll() /* Permite login sem token*/
+	               .requestMatchers("/usuarios/cadastrar").permitAll() /* Permite cadastro sem token*/
+	               .requestMatchers("/error/**").permitAll()
+	               .requestMatchers(HttpMethod.OPTIONS).permitAll()
+	               .anyRequest().authenticated())
 	        .authenticationProvider(authenticationProvider())
 	        .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
 	        .httpBasic(withDefaults());

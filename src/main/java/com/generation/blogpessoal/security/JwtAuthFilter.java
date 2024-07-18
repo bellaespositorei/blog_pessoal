@@ -30,7 +30,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
 
-    @Override
+    //Método de Filtro da Autentificação do JWT
+    //Faz as validações todas para pegar o token, decodificar e validar se esse token está correto
+    @Override 
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         String token = null;

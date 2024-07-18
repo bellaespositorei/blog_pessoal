@@ -16,6 +16,9 @@ import com.generation.blogpessoal.model.Usuario;
 import com.generation.blogpessoal.repository.UsuarioRepository;
 import com.generation.blogpessoal.security.JwtService;
 
+
+//Regras de negócio da Classe Usuário Model
+// Auxilia colocar métodos aqui que podem ser replicados e chamados em outras classes
 @Service
 public class UsuarioService {
 
@@ -28,6 +31,7 @@ public class UsuarioService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    //Método Responsável por cadastrar o usuário
 	public Optional<Usuario> cadastrarUsuario(Usuario usuario) {
 
 		if (usuarioRepository.findByUsuario(usuario.getUsuario()).isPresent())
@@ -39,6 +43,7 @@ public class UsuarioService {
 	
 	}
 
+	//Método Responsável por atualizar o usuário
 	public Optional<Usuario> atualizarUsuario(Usuario usuario) {
 		
 		if(usuarioRepository.findById(usuario.getId()).isPresent()) {
@@ -58,25 +63,28 @@ public class UsuarioService {
 	
 	}	
 
+	//Método Responsável por autenticar (logar) o usuário
 	public Optional<UsuarioLogin> autenticarUsuario(Optional<UsuarioLogin> usuarioLogin) {
         
-        
-		var credenciais = new UsernamePasswordAuthenticationToken(usuarioLogin.get().getUsuario(), usuarioLogin.get().getSenha());
+        //Gera o Objeto de Autenticação
+		var credenciais = new UsernamePasswordAuthenticationToken(usuarioLogin.get()
+				.getUsuario(), usuarioLogin.get().getSenha());
 		
-       
+       //Autentica o Usuário
 		Authentication authentication = authenticationManager.authenticate(credenciais);
         
-      
+		//Se a autenticação for efetuada com sucesso
 		if (authentication.isAuthenticated()) {
 
-            
-			Optional<Usuario> usuario = usuarioRepository.findByUsuario(usuarioLogin.get().getUsuario());
+        //Busca os dados do usuário
+			Optional<Usuario> usuario = usuarioRepository.findByUsuario(usuarioLogin.get()
+					.getUsuario());
 
-            
+        //Se o usuario for presente    
 			if (usuario.isPresent()) {
 
-                
-			   usuarioLogin.get().setId(usuario.get().getId());
+                //Preenche o Objeto usuarioLogin com os dados encontrados
+				usuarioLogin.get().setId(usuario.get().getId());
                 usuarioLogin.get().setNome(usuario.get().getNome());
                 usuarioLogin.get().setFoto(usuario.get().getFoto());
                 usuarioLogin.get().setToken(gerarToken(usuarioLogin.get().getUsuario()));
@@ -93,6 +101,7 @@ public class UsuarioService {
 
     }
 
+	//Método Responsável por criptografar a senha
 	private String criptografarSenha(String senha) {
 
 		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -101,6 +110,7 @@ public class UsuarioService {
 
 	}
 
+	//Método Responsável por gerar o token
 	private String gerarToken(String usuario) {
 		return "Bearer " + jwtService.generateToken(usuario);
 	}
